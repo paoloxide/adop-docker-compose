@@ -4,7 +4,7 @@
 proxy:
   container_name: proxy
   restart: always
-  image: accenture/adop-nginx:0.2.0
+  image: poln/nginx-siebel:0.1
   #build: ../images/docker-nginx/
   net: ${CUSTOM_NETWORK_NAME}
   ports:
@@ -19,6 +19,48 @@ proxy:
     - "LDAP_GROUP_ATTRIBUTE=member"
     - "LDAP_USER_ID_ATTRIBUTE=cn"
     - "LDAP_USER_OBJECT_CLASS=inetOrgPerson"
+
+svn-server:
+ container_name: svn
+ restart: always
+ image: bzon/subversion-edge:latest
+ ports:
+  - "3343:3343"
+  - "3380:80"
+  - "4434:4434"
+
+gitlab:
+ container_name: gitlab
+ restart: always
+ image: gitlab/gitlab-ce:8.8.2-ce.0
+ net: ${CUSTOM_NETWORK_NAME}
+ ports:
+  - "9080:80"
+  - "9443:443"
+  - "9022:22"
+ volumes:
+  - gitlab_etc:/etc/gitlab
+  - gitlab_opt:/var/opt/gitlab
+  - gitlab_log:/var/log/gitlab
+ environment:
+  GITLAB_ROOT_PASSWORD: ${PASSWORD_GITLAB}
+  GITLAB_OMNIBUS_CONFIG: |
+  external_url 'http://${TARGET_HOST}/gitlab'
+  gitlab_rails['ldap_enabled'] = true
+  gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
+    main:
+    label: 'LDAP'
+    host: ldap
+    port: 389
+    uid: 'uid'
+    method: 'plain'
+    bind_dn: 'cn=admin,${LDAP_FULL_DOMAIN}'
+    password: '${LDAP_PWD}'
+    active_directory: false
+    allow_username_or_email_login: false
+    block_auto_created_users: false
+    base: '${LDAP_FULL_DOMAIN}'
+  EOS
 
 ldap:
   container_name: ldap
@@ -194,7 +236,7 @@ sonar:
 jenkins:
   container_name: jenkins
   restart: always
-  image: accenture/adop-jenkins:0.1.5
+  image: totoki/siebel_jenkins:0.1
   #build: ../images/docker-jenkins/
   net: ${CUSTOM_NETWORK_NAME}
   expose:
