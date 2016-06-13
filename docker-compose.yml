@@ -4,7 +4,7 @@
 proxy:
   container_name: proxy
   restart: always
-  image: poln/nginx-siebel:0.1
+  image: poln/nginx-siebel:0.3
   #build: ../images/docker-nginx/
   net: ${CUSTOM_NETWORK_NAME}
   ports:
