@@ -1,7 +1,6 @@
 # set TARGET_HOST to dns/ip of proxy
 # set LOGSTASH_HOST to dns/ip of logstash host
-
-proxy:
+ proxy:
   container_name: proxy
   restart: always
   image: poln/nginx-siebel:0.1
@@ -20,49 +19,29 @@ proxy:
     - "LDAP_USER_ID_ATTRIBUTE=cn"
     - "LDAP_USER_OBJECT_CLASS=inetOrgPerson"
 
-svn-server:
- container_name: svn
- restart: always
- image: bzon/subversion-edge:latest
- ports:
-  - "3343:3343"
-  - "3380:80"
-  - "4434:4434"
+ svn-server:
+  container_name: svn
+  restart: always
+  image: bzon/subversion-edge:latest
+  net: ${CUSTOM_NETWORK_NAME}
+  ports:
+    - "3343:3343"
+    - "3380:80"
+    - "4434:4434"
+  environment:
+    CSVN_BASE_URL: "http://${TARGET_HOST}/csvn"
+ 
+ jira:
+  container_name: jira
+  restart: always
+  image: totoki/suvra_jira:0.3
+  net: ${CUSTOM_NETWORK_NAME}
+  expose:
+    - "8082"
+  environment:
+    JIRA_BASE_URL: "http://${TARGET_HOST}/jira"
 
-gitlab:
- container_name: gitlab
- restart: always
- image: gitlab/gitlab-ce:8.8.2-ce.0
- net: ${CUSTOM_NETWORK_NAME}
- ports:
-  - "9080:80"
-  - "9443:443"
-  - "9022:22"
- volumes:
-  - gitlab_etc:/etc/gitlab
-  - gitlab_opt:/var/opt/gitlab
-  - gitlab_log:/var/log/gitlab
- environment:
-  GITLAB_ROOT_PASSWORD: ${PASSWORD_GITLAB}
-  GITLAB_OMNIBUS_CONFIG: |
-  external_url 'http://${TARGET_HOST}/gitlab'
-  gitlab_rails['ldap_enabled'] = true
-  gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
-    main:
-    label: 'LDAP'
-    host: ldap
-    port: 389
-    uid: 'uid'
-    method: 'plain'
-    bind_dn: 'cn=admin,${LDAP_FULL_DOMAIN}'
-    password: '${LDAP_PWD}'
-    active_directory: false
-    allow_username_or_email_login: false
-    block_auto_created_users: false
-    base: '${LDAP_FULL_DOMAIN}'
-  EOS
-
-ldap:
+ ldap:
   container_name: ldap
   restart: always
   #build: ../images/docker-ldap/
@@ -79,7 +58,7 @@ ldap:
     SLAPD_DOMAIN: ${LDAP_DOMAIN}
     SLAPD_FULL_DOMAIN: ${LDAP_FULL_DOMAIN}
 
-gerrit-mysql:
+ gerrit-mysql:
   container_name: gerrit-mysql
   restart: always
   image: mysql:5.6.25
@@ -92,7 +71,7 @@ gerrit-mysql:
     MYSQL_PASSWORD: ${GERRIT_MYSQL_PASSWORD}
     MYSQL_DATABASE: ${GERRIT_MYSQL_DATABASE}
 
-gerrit:
+ gerrit:
   container_name: gerrit
   restart: always
   #build: ../images/docker-gerrit/
@@ -133,7 +112,7 @@ gerrit:
     - "USER_EMAIL=${GERRIT_USER_EMAIL}"
     - "DOWNLOAD_SCHEME=http"
 
-sensu-uchiwa:
+ sensu-uchiwa:
   container_name: sensu-uchiwa
   restart: always
   image: sstarcher/uchiwa:0.15.0
@@ -143,7 +122,7 @@ sensu-uchiwa:
   expose:
     - "3000"
 
-sensu-api:
+ sensu-api:
   container_name: sensu-api
   restart: always
   image: accenture/adop-sensu:0.1.0
@@ -155,7 +134,7 @@ sensu-api:
     RABBITMQ_HOST: sensu-rabbitmq
     REDIS_HOST: sensu-redis
 
-sensu-server:
+ sensu-server:
   container_name: sensu-server
   restart: always
   image: accenture/adop-sensu:0.1.0
@@ -167,7 +146,7 @@ sensu-server:
     RABBITMQ_HOST: sensu-rabbitmq
     REDIS_HOST: sensu-redis
 
-sensu-client:
+ sensu-client:
   container_name: sensu-client
   restart: always
   image: accenture/adop-sensu:0.1.0
@@ -179,7 +158,7 @@ sensu-client:
     JENKINS_PREFIX: jenkins
     CLIENT_SUBSCRIPTIONS: "proxy,gerrit,jenkins,nexus,sonarqube,sensu,kibana"
 
-sensu-rabbitmq:
+ sensu-rabbitmq:
   container_name: sensu-rabbitmq
   restart: always
   image: rabbitmq:3.5.7-management
@@ -190,7 +169,7 @@ sensu-rabbitmq:
     - "15672"
     - "15671"
 
-sensu-redis:
+ sensu-redis:
   container_name: sensu-redis
   restart: always
   image: redis:3.0.7
@@ -198,7 +177,7 @@ sensu-redis:
   expose:
     - "6379"
 
-sonar-mysql:
+ sonar-mysql:
   container_name: sonar-mysql
   restart: always
   image: mysql:5.6.25
@@ -211,7 +190,7 @@ sonar-mysql:
     MYSQL_PASSWORD: ${SONAR_MYSQL_PASSWORD}
     MYSQL_DATABASE: ${SONAR_MYSQL_DATABASE}
 
-sonar:
+ sonar:
   container_name: sonar
   restart: always
   image: accenture/adop-sonar:0.1.1
@@ -233,10 +212,10 @@ sonar:
     - "LDAP_GROUP_ID_ATTRIBUTE=cn"
     - "SONARQUBE_JDBC_URL=jdbc:mysql://sonar-mysql:3306/${SONAR_MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true"
 
-jenkins:
+ jenkins:
   container_name: jenkins
   restart: always
-  image: totoki/siebel_jenkins:0.1
+  image: poln/jenkins-siebel:0.1
   #build: ../images/docker-jenkins/
   net: ${CUSTOM_NETWORK_NAME}
   expose:
@@ -287,7 +266,7 @@ jenkins:
     DOCKER_CLIENT_CERT_PATH: ${DOCKER_CLIENT_CERT_PATH}
     DOCKER_NETWORK_NAME: ${CUSTOM_NETWORK_NAME}
 
-jenkins-slave:
+ jenkins-slave:
   container_name: jenkins-slave
   restart: always
   image: accenture/adop-jenkins-slave:0.1.3
@@ -300,7 +279,7 @@ jenkins-slave:
     INITIAL_ADMIN_USER: ${INITIAL_ADMIN_USER}
     INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD_PLAIN}
 
-selenium-hub:
+ selenium-hub:
   container_name: selenium-hub
   restart: always
   image: selenium/hub:2.46.0
@@ -308,7 +287,7 @@ selenium-hub:
   expose:
     - "4444"
 
-selenium-node-chrome:
+ selenium-node-chrome:
   container_name: selenium-node-chrome
   restart: always
   image: selenium/node-chrome:2.46.0
@@ -318,7 +297,7 @@ selenium-node-chrome:
     HUB_PORT_4444_TCP_ADDR: "selenium-hub"
     HUB_PORT_4444_TCP_PORT: "4444"
 
-selenium-node-firefox:
+ selenium-node-firefox:
   container_name: selenium-node-firefox
   restart: always
   image: selenium/node-firefox:2.46.0
@@ -328,7 +307,7 @@ selenium-node-firefox:
     HUB_PORT_4444_TCP_ADDR: "selenium-hub"
     HUB_PORT_4444_TCP_PORT: "4444"
 
-nexus:
+ nexus:
   container_name: nexus
   restart: always
   image:  accenture/adop-nexus:0.1.0
@@ -346,7 +325,7 @@ nexus:
     LDAP_GROUP_BASE_DN: "ou=groups"
     LDAP_BIND_PASSWORD: ${LDAP_PWD}
 
-ldap-ltb:
+ ldap-ltb:
   container_name: ldap-ltb
   restart: always
   image: accenture/adop-ldap-ltb:0.1.0
@@ -359,7 +338,7 @@ ldap-ltb:
     LDAP_LTB_PWD: "${LDAP_PWD}"
     LDAP_LTB_BS: "${LDAP_FULL_DOMAIN}"
 
-ldap-phpadmin:
+ ldap-phpadmin:
   container_name: ldap-phpadmin
   restart: always
   image: accenture/adop-ldap-phpadmin:0.1.0
