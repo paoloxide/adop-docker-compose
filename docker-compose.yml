@@ -3,7 +3,7 @@
  proxy:
   container_name: proxy
   restart: always
-  image: poln/nginx-siebel:0.3
+  image: poln/nginx-php:0.9.1
   #build: ../images/docker-nginx/
   net: ${CUSTOM_NETWORK_NAME}
   ports:
@@ -215,7 +215,7 @@
  jenkins:
   container_name: jenkins
   restart: always
-  image: poln/jenkins-siebel:0.1
+  image: johnsmith01/jenkinstalent:0.1
   #build: ../images/docker-jenkins/
   net: ${CUSTOM_NETWORK_NAME}
   expose:
@@ -300,7 +300,7 @@
  selenium-node-firefox:
   container_name: selenium-node-firefox
   restart: always
-  image: selenium/node-firefox:2.46.0
+  image: totoki/node-firefox:0.1
   net: ${CUSTOM_NETWORK_NAME}
   environment:
     SE_OPTS: "-nodeConfig /var/selenium-config/config-firefox.json"
