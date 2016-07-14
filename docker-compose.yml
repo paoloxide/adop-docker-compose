@@ -20,6 +20,19 @@ proxy:
     - "LDAP_USER_ID_ATTRIBUTE=cn"
     - "LDAP_USER_OBJECT_CLASS=inetOrgPerson"
 
+svn-server: 
+  container_name: svn 
+  restart: always 
+  image: bzon/subversion-edge:latest 
+  net: ${CUSTOM_NETWORK_NAME} 
+  ports: 
+    - "3343:3343" 
+    - "3380:80" 
+    - "4434:4434" 
+  environment: 
+    CSVN_BASE_URL: "http://${TARGET_HOST}/csvn" 
+
+
 ldap:
   container_name: ldap
   restart: always
