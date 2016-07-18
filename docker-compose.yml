@@ -348,10 +348,10 @@ ldap-phpadmin:
 jira:
   container_name: jira
   restart: always
-  image: totoki/suvra_jira:0.3
+  image: poln/jira:0.1
   net: ${CUSTOM_NETWORK_NAME}
-  expose:
-    - "8082"
+  ports:
+    - "8082:8080"
   environment:
     JIRA_BASE_URL: "http://${TARGET_HOST}/jira"
 
