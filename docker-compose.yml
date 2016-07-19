@@ -350,8 +350,8 @@ jira:
   restart: always
   image: poln/jira:0.1
   net: ${CUSTOM_NETWORK_NAME}
-  ports:
-    - "8082:8080"
+  expose:
+    - "8082"
   environment:
     JIRA_BASE_URL: "http://${TARGET_HOST}/jira"
 
