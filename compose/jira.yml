@@ -1,0 +1,6 @@
+ jira:
+   image: poln/jira:0.1
+   net: "${CUSTOM_NETWORK_NAME}"
+   container_name: jira
+   ports:
+     - "8082:8082"
