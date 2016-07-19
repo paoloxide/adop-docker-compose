@@ -345,16 +345,6 @@ ldap-phpadmin:
     LDAP_SERVER_BIND_ID: "cn=admin,${LDAP_FULL_DOMAIN}"
     LDAP_SERVER_BASE_DN: "${LDAP_FULL_DOMAIN}"
 
-jira:
-  container_name: jira
-  restart: always
-  image: poln/jira:0.1
-  net: ${CUSTOM_NETWORK_NAME}
-  expose:
-    - "8082"
-  environment:
-    JIRA_BASE_URL: "http://${TARGET_HOST}/jira"
-
 svn-server:
   container_name: svn
   restart: always
