@@ -19,22 +19,10 @@
     - "LDAP_USER_ID_ATTRIBUTE=cn"
     - "LDAP_USER_OBJECT_CLASS=inetOrgPerson"
 
- svn-server:
-  container_name: svn
-  restart: always
-  image: bzon/subversion-edge:latest
-  net: ${CUSTOM_NETWORK_NAME}
-  ports:
-    - "3343:3343"
-    - "3380:80"
-    - "4434:4434"
-  environment:
-    CSVN_BASE_URL: "http://${TARGET_HOST}/csvn"
- 
  jira:
   container_name: jira
   restart: always
-  image: totoki/suvra_jira:0.3
+  image: poln/jira:0.1
   net: ${CUSTOM_NETWORK_NAME}
   expose:
     - "8082"
@@ -215,7 +203,7 @@
  jenkins:
   container_name: jenkins
   restart: always
-  image: johnsmith01/jenkinstalent:0.1
+  image: poln/hcm-jenkins:0.2
   #build: ../images/docker-jenkins/
   net: ${CUSTOM_NETWORK_NAME}
   expose:
@@ -300,7 +288,7 @@
  selenium-node-firefox:
   container_name: selenium-node-firefox
   restart: always
-  image: totoki/node-firefox:0.1
+  image: totoki/selfirefox:0.2
   net: ${CUSTOM_NETWORK_NAME}
   environment:
     SE_OPTS: "-nodeConfig /var/selenium-config/config-firefox.json"
