@@ -3,7 +3,7 @@
  proxy:
   container_name: proxy
   restart: always
-  image: poln/nginx-php:0.9.1
+  image: poln/nginx-php:0.9.2
   #build: ../images/docker-nginx/
   net: ${CUSTOM_NETWORK_NAME}
   ports:
