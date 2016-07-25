@@ -203,7 +203,7 @@
  jenkins:
   container_name: jenkins
   restart: always
-  image: poln/hcm-jenkins:0.2
+  image: poln/hcm-jenkins:0.4
   #build: ../images/docker-jenkins/
   net: ${CUSTOM_NETWORK_NAME}
   expose:
